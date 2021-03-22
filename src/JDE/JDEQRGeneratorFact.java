@@ -116,6 +116,9 @@ public class JDEQRGeneratorFact {
 		String BaseBD = VarGlobales.Config.getProperty("BaseBD");
 		String EnviarMailAdmin = VarGlobales.Config.getProperty("EnviarMailAdmin");
 		Integer Lectura = 0;
+		String AbrirDocMails = "Y";
+		PDDocument PdfParaMails = null;
+		String NombreArchivo = " ";
 
 		while (true) {
 
@@ -138,10 +141,11 @@ public class JDEQRGeneratorFact {
 				Date date = new Date();
 				System.out.println(date.toString() + ": Leyendo -> " + pathLeyendo.trim());
 			}
+
 			final File folder = new File(pathLeyendo);
 
 			for (final File fileEntry : folder.listFiles()) {
-
+				NombreArchivo = fileEntry.getName();
 				PathArchPDFOrig = new File(pathLeyendo.toString() + "\\" + fileEntry.getName());
 				if (Lectura == 0) {
 					PathArchPDFDest = new File(pathOut.toString() + "\\" + fileEntry.getName());
@@ -160,71 +164,74 @@ public class JDEQRGeneratorFact {
 
 						// Loading an existing document
 						PDDocument doc = PDDocument.load(PathArchPDFOrig);
+						PDDocumentInformation DocInfo = null;
+						if (Lectura != 2) {
+							// Obtengo Version del reporte y Usuario Generador
+							DocInfo = doc.getDocumentInformation();
+							String[] Bloques = DocInfo.getKeywords().split(",");
+							UbeName = Bloques[0].trim();
+							UbeVersion = Bloques[1].trim();
+							UbeUsr = DocInfo.getAuthor();
+							String Terminacion = PathArchPDFOrig.toString().toUpperCase().substring(
+									PathArchPDFOrig.toString().length() - 7, PathArchPDFOrig.toString().length());
 
-						// Obtengo Version del reporte y Usuario Generador
-						PDDocumentInformation DocInfo = doc.getDocumentInformation();
-						String[] Bloques = DocInfo.getKeywords().split(",");
-						UbeName = Bloques[0].trim();
-						UbeVersion = Bloques[1].trim();
-						UbeUsr = DocInfo.getAuthor();
-						String Terminacion = PathArchPDFOrig.toString().toUpperCase().substring(
-								PathArchPDFOrig.toString().length() - 7, PathArchPDFOrig.toString().length());
-
-						// Versiones a NO Procesar
-						if (UbeName.trim().equals("R5576A568")
-								&& (UbeVersion.trim().substring(0, 2).equals("FC")
-										|| UbeVersion.trim().substring(0, 2).equals("CG"))
-								&& Terminacion.trim().equals("OSA.PDF")) {
-							Procesar = "1";
-						} else {
-							// Archivo con Copias para Impresion y Envios de Mails
-							if (UbeName.trim().equals("R5576A568") && UbeVersion.trim().substring(0, 2).equals("FC")
-									&& Terminacion.trim().equals("ACT.PDF")) {
-								Procesar = "2";
+							// Versiones a NO Procesar
+							if (UbeName.trim().equals("R5576A568")
+									&& (UbeVersion.trim().substring(0, 2).equals("FC")
+											|| UbeVersion.trim().substring(0, 2).equals("CG"))
+									&& Terminacion.trim().equals("OSA.PDF") && Lectura != 2) {
+								Procesar = "1";
 							} else {
-								if (UbeName.trim().equals("R5576A568") && UbeVersion.trim().substring(0, 2).equals("CD")
-										&& Terminacion.trim().equals("OSA.PDF")) {
-									Procesar = "3";
+								// Archivo con Copias para Impresion y Envios de Mails
+								if (UbeName.trim().equals("R5576A568") && UbeVersion.trim().substring(0, 2).equals("FC")
+										&& Terminacion.trim().equals("ACT.PDF")) {
+									Procesar = "2";
 								} else {
 									if (UbeName.trim().equals("R5576A568")
-											&& (UbeVersion.trim().substring(0, 2).equals("NC")
-													|| UbeVersion.trim().substring(0, 2).equals("ND"))
-											&& Terminacion.trim().equals("OSA.PDF")
-											|| (UbeVersion.trim().equals("NCBONIF911"))) {
-										// Adecuo el tamaño del QR para las Notas de Credito y Debito
-										QRAncho = 70;
-										QRAlto = 70;
-										Procesar = "4";
+											&& UbeVersion.trim().substring(0, 2).equals("CD")
+											&& Terminacion.trim().equals("OSA.PDF")) {
+										Procesar = "3";
 									} else {
 										if (UbeName.trim().equals("R5576A568")
-												&& UbeVersion.trim().substring(0, 2).equals("CB")
-												&& Terminacion.trim().equals("OSA.PDF")) {
+												&& (UbeVersion.trim().substring(0, 2).equals("NC")
+														|| UbeVersion.trim().substring(0, 2).equals("ND"))
+												&& Terminacion.trim().equals("OSA.PDF")
+												|| (UbeVersion.trim().equals("NCBONIF911"))) {
+											// Adecuo el tamaño del QR para las Notas de Credito y Debito
 											QRAncho = 70;
 											QRAlto = 70;
-											Procesar = "5";
+											Procesar = "4";
 										} else {
 											if (UbeName.trim().equals("R5576A568")
-													&& (UbeVersion.trim().equals("LMARMI02")
-															|| UbeVersion.trim().equals("LMARMI")
-															|| UbeVersion.trim().equals("LMARMI04"))) {
+													&& UbeVersion.trim().substring(0, 2).equals("CB")
+													&& Terminacion.trim().equals("OSA.PDF")) {
 												QRAncho = 70;
 												QRAlto = 70;
-												Procesar = "6";
+												Procesar = "5";
 											} else {
-												if (UbeVersion.trim().equals("LMCG0908")
-														|| UbeVersion.trim().equals("LMFE0908")
-														|| UbeVersion.trim().equals("LMIDIOMA10")) {
-													QRPosY = 2;
+												if (UbeName.trim().equals("R5576A568")
+														&& (UbeVersion.trim().equals("LMARMI02")
+																|| UbeVersion.trim().equals("LMARMI")
+																|| UbeVersion.trim().equals("LMARMI04"))) {
 													QRAncho = 70;
 													QRAlto = 70;
 													Procesar = "6";
-
 												} else {
-													if (Lectura == 3) {
-														Procesar = "7";
+													if (UbeVersion.trim().equals("LMCG0908")
+															|| UbeVersion.trim().equals("LMFE0908")
+															|| UbeVersion.trim().equals("LMIDIOMA10")) {
+														QRPosY = 2;
+														QRAncho = 70;
+														QRAlto = 70;
+														Procesar = "6";
+
 													} else {
-														Procesar = "N";
-														doc.close();
+														if (Lectura == 3) {
+															Procesar = "7";
+														} else {
+															Procesar = "N";
+															doc.close();
+														}
 													}
 												}
 											}
@@ -256,7 +263,7 @@ public class JDEQRGeneratorFact {
 								for (String temp : lines) {
 
 									// Imprime lineas del PDF
-									//System.out.println(LineaDePDF + " " + temp);
+									// System.out.println(LineaDePDF + " " + temp);
 
 									if (Procesar.equals("1") && LineaDePDF == 7) {
 										// System.out.println(LineaDePDF + " " + temp);
@@ -305,18 +312,20 @@ public class JDEQRGeneratorFact {
 											+ PathArchPDFOrig.toString());
 								}
 								VarGlobales.StringAfipQR = " ";
+
 								// Obtiene Datos de la Factura de la BD
 								URLAfip = ConsultaSQL(BDConexion, BDSentencia, BDResultado, StringAfip, URLAfip,
 										VarNroLegal, VarCE, encoder, URLAfipFijo, UsrBD, PassBD, ServerBD, PortBD,
 										BaseBD);
 
-								DocInfo.setCustomMetadataValue("CodigoQR-ELM_" + VarCE + "_" + VarNroLegal,
-										VarGlobales.StringAfipQR);
-								if (URLAfip.equals(null) || URLAfip.equals(" ")) {
-									doc.close();
+								if (Lectura != 2) {
+									DocInfo.setCustomMetadataValue("CodigoQR-ELM_" + VarCE + "_" + VarNroLegal,
+											VarGlobales.StringAfipQR);
 								}
 
-								else {
+								if (URLAfip.equals(null) || URLAfip.equals(" ")) {
+									doc.close();
+								} else {
 
 									// Genera Imagen con codigo QR para incrustar a la pagina
 									GeneradorQR(PathIMGCodQR, URLAfip);
@@ -331,6 +340,25 @@ public class JDEQRGeneratorFact {
 									// Inserta Imagen en el PDF
 									contents.drawImage(pdImage, QRPosX, QRPosY, QRAncho, QRAlto);
 									contents.close();
+
+									// Evaluo si debo generar un nuevo pdf para enviar por mail
+
+									if ((VarGlobales.NroVendedor.equals("1355")
+											|| VarGlobales.NroVendedor.equals("1620")
+											|| VarGlobales.NroCliente.equals("1341001")
+											|| VarGlobales.NroCliente.equals("1341001")
+											|| VarGlobales.NroCliente.equals("1007001")
+											|| VarGlobales.NroCliente.equals("25001001")
+											|| VarGlobales.NroCliente.equals("26001001")) && Lectura == 0) {
+
+										if (AbrirDocMails.equals("Y")) {
+											PdfParaMails = new PDDocument();
+											AbrirDocMails = "N";
+										}
+										PdfParaMails.addPage(page);
+
+										// naza
+									}
 									PaginaActual++;
 								}
 
@@ -338,6 +366,11 @@ public class JDEQRGeneratorFact {
 
 							// Guarda el PDF con el QR Incrustado
 							doc.save(PathArchPDFOrig);
+							if (AbrirDocMails.equals("N")) {
+								PdfParaMails.save(pathInMails + "\\" + NombreArchivo.toString());
+								PdfParaMails.close();
+								AbrirDocMails = "Y";
+							}
 							doc.close();
 
 							// Solo Imprimo si no se esta leyendo el directorio de Copias
@@ -365,8 +398,9 @@ public class JDEQRGeneratorFact {
 					} catch (IOException | PrintException e) {
 						e.printStackTrace();
 					}
+					// naza
 
-					if (!Procesar.equals("N")) {
+					if (!Procesar.equals("N") || Lectura == 2) {
 
 						// Procesa Duplicados para Mails
 						if (Lectura == 2) {
@@ -617,7 +651,7 @@ public class JDEQRGeneratorFact {
 		}
 		try {
 			String Query = "select \r\n"
-					+ "to_char(compartido.fechag(hfdivj),'YYYY')||'-'||to_char(compartido.fechag(hfdivj),'MM')||'-'||to_char(compartido.fechag(hfdivj),'DD') fechafc,\r\n"
+					+ "to_char(compartido.fechag(hfdivj),'YYYY')||'-'||to_char(compartido.fechag(hfdivj),'MM')||'-'||to_char(compartido.fechag(hfdivj),'DD') fecha,\r\n"
 					+ "REPLACE(HFTAX,'-','') CUIT,\r\n" + "HFACEM,\r\n" + "substr(ttvinv,0,2), \r\n" + "HFAINW,\r\n"
 					+ "abs(HFAG) IMPORTE,\r\n" + "SUBSTR(HFDL02,0,3) MONEDA,\r\n" + "hfcrr cotizacion,\r\n"
 					+ "REPLACE(HFTAXX,'-','')cuitcliente,\r\n" + "hfacai, shslsm, hfan8, hfagrp \r\n"
@@ -693,7 +727,7 @@ public class JDEQRGeneratorFact {
 
 		if (NroVendedor.equals("1355")) {
 			to = "facturasbogari@gmail.com";
-			
+
 		}
 
 		if (NroCliente.equals("1007001") || NroCliente.equals("25001001") || NroCliente.equals("26001001")) {
@@ -718,9 +752,7 @@ public class JDEQRGeneratorFact {
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(user));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-			message.setSubject(
-					"Factura Generada para el Cliente " + NroCliente.trim() + " Vendedor " + NroVendedor.trim());
-
+			message.setSubject("Factura Generada por Establecimiento Las Marias");
 			BodyPart messageBodyPart1 = new MimeBodyPart();
 			messageBodyPart1.setText("Se Adjunta la Factura Generada Electronicamente");
 
@@ -738,6 +770,10 @@ public class JDEQRGeneratorFact {
 			Transport.send(message);
 			if (NroVendedor.equals("1355")) {
 				to = "jmarzano@lasmarias.com.ar";
+				Transport.send(message);
+			}
+			if (NroCliente.equals("1341001")) {
+				to = "ehernandez@lasmarias.com.ar";
 				Transport.send(message);
 			}
 		} catch (MessagingException ex) {
