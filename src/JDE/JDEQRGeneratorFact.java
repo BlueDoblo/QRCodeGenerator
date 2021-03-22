@@ -404,8 +404,7 @@ public class JDEQRGeneratorFact {
 
 						// Procesa Duplicados para Mails
 						if (Lectura == 2) {
-							PathArchPDFMail = new File(pathLeyendo.toString() + "\\FC_" + VarGlobales.NroCliente.trim()
-									+ "_" + VarCE.trim() + "_" + VarNroLegal.trim() + ".pdf");
+							PathArchPDFMail = new File(pathLeyendo.toString() + "\\ComprobanteLegal-ELM_CE_" + VarCE.trim() + ".pdf");
 							PathArchPDFOrig.renameTo(PathArchPDFMail);
 
 							if (VarGlobales.NroVendedor.trim().equals("1620")
