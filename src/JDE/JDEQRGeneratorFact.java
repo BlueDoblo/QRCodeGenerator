@@ -345,6 +345,7 @@ public class JDEQRGeneratorFact {
 
 									if ((VarGlobales.NroVendedor.equals("1355")
 											|| VarGlobales.NroVendedor.equals("1620")
+											|| VarGlobales.NroVendedor.equals("1413")
 											|| VarGlobales.NroCliente.equals("1341001")
 											|| VarGlobales.NroCliente.equals("1341001")
 											|| VarGlobales.NroCliente.equals("1007001")
@@ -402,44 +403,75 @@ public class JDEQRGeneratorFact {
 
 					if (!Procesar.equals("N") || Lectura == 2) {
 
-						// Procesa Duplicados para Mails
+						// Procesa Envios de Mails
 						if (Lectura == 2) {
-							PathArchPDFMail = new File(pathLeyendo.toString() + "\\ComprobanteLegal-ELM_CE_" + VarCE.trim() + ".pdf");
+							PathArchPDFMail = new File(
+									pathLeyendo.toString() + "\\ComprobanteLegal-ELM_CE_" + VarCE.trim() + ".pdf");
 							PathArchPDFOrig.renameTo(PathArchPDFMail);
 
 							if (VarGlobales.NroVendedor.trim().equals("1620")
 									&& VarGlobales.NroCliente.trim().equals("13558001")) {
+
 								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
-										PathArchPDFMail, From, Pass);
+										PathArchPDFMail, From, Pass, "mmonjes@lasmarias.com.ar");
+
 								if (EnviarMailAdmin.equals("Y")) {
-									EnvioMails("ADMIN", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass);
+									EnvioMails("ADMIN", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass,
+											" ");
 								}
 
 							}
 
 							if (VarGlobales.NroVendedor.trim().equals("1355")) {
 								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
-										PathArchPDFMail, From, Pass);
+										PathArchPDFMail, From, Pass, "facturasbogari@gmail.com");
+
+								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
+										PathArchPDFMail, From, Pass, "jmarzano@lasmarias.com.ar");
+
 								if (EnviarMailAdmin.equals("Y")) {
-									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass);
+									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass,
+											" ");
+								}
+							}
+							if (VarGlobales.NroVendedor.trim().equals("1413")) {
+
+								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
+										PathArchPDFMail, From, Pass, "AHaszczyn@lasmarias.com.ar");
+
+								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
+										PathArchPDFMail, From, Pass, "EHernandez@lasmarias.com.ar");
+
+								if (EnviarMailAdmin.equals("Y")) {
+									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass,
+											" ");
 								}
 							}
 
 							if (VarGlobales.NroCliente.trim().equals("1341001")) {
+
 								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
-										PathArchPDFMail, From, Pass);
+										PathArchPDFMail, From, Pass, "FacturaElectronica@nini.com.ar");
+
+								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
+										PathArchPDFMail, From, Pass, "EHernandez@lasmarias.com.ar");
+
 								if (EnviarMailAdmin.equals("Y")) {
-									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass);
+									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass,
+											" ");
 								}
 							}
 
 							if (VarGlobales.NroCliente.trim().equals("1007001")
 									|| VarGlobales.NroCliente.trim().equals("25001001")
 									|| VarGlobales.NroCliente.trim().equals("26001001")) {
+
 								EnvioMails(VarGlobales.NroVendedor.trim(), VarGlobales.NroCliente.trim(),
-										PathArchPDFMail, From, Pass);
+										PathArchPDFMail, From, Pass, "facturasedi@cencosud.com.ar");
+
 								if (EnviarMailAdmin.equals("Y")) {
-									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass);
+									EnvioMails("Admin", VarGlobales.NroCliente.trim(), PathArchPDFMail, From, Pass,
+											" ");
 								}
 							}
 
@@ -714,31 +746,16 @@ public class JDEQRGeneratorFact {
 
 	}
 
-	public static void EnvioMails(String NroVendedor, String NroCliente, File PathArchPDFOrig, String From,
-			String Pass) {
+	public static void EnvioMails(String NroVendedor, String NroCliente, File PathArchPDFOrig, String From, String Pass,
+			String Para) {
 
 		String to = " ";// Destinatario
 		String Smtp = VarGlobales.Config.getProperty("SMTP");
 
-		if (NroVendedor.equals("1620")) {
-			to = "mmonjes@lasmarias.com.ar";
-		}
-
-		if (NroVendedor.equals("1355")) {
-			to = "facturasbogari@gmail.com";
-
-		}
-
-		if (NroCliente.equals("1007001") || NroCliente.equals("25001001") || NroCliente.equals("26001001")) {
-			to = "facturasedi@cencosud.com.ar";
-		}
-
-		if (NroCliente.equals("1341001")) {
-			to = "FacturaElectronica@nini.com.ar";
-		}
-
 		if (NroVendedor.toUpperCase().equals("ADMIN")) {
 			to = VarGlobales.Config.getProperty("MailAdmin");
+		} else {
+			to = Para.trim();
 		}
 
 		final String user = From;// Originador del Mail
@@ -767,14 +784,7 @@ public class JDEQRGeneratorFact {
 			message.setContent(multipart);
 
 			Transport.send(message);
-			if (NroVendedor.equals("1355")) {
-				to = "jmarzano@lasmarias.com.ar";
-				Transport.send(message);
-			}
-			if (NroCliente.equals("1341001")) {
-				to = "ehernandez@lasmarias.com.ar";
-				Transport.send(message);
-			}
+
 		} catch (MessagingException ex) {
 			ex.printStackTrace();
 		}
