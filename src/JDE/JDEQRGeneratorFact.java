@@ -197,7 +197,7 @@ public class JDEQRGeneratorFact {
 														|| UbeVersion.trim().substring(0, 2).equals("ND"))
 												&& Terminacion.trim().equals("OSA.PDF")
 												|| (UbeVersion.trim().equals("NCBONIF911"))) {
-											// Adecuo el tamaño del QR para las Notas de Credito y Debito
+											// Adecuo el tamaï¿½o del QR para las Notas de Credito y Debito
 											QRAncho = 70;
 											QRAlto = 70;
 											Procesar = "4";
@@ -558,7 +558,7 @@ public class JDEQRGeneratorFact {
 
 		PrintService[] ps = PrintServiceLookup.lookupPrintServices(null, null);
 		if (ps.length == 0) {
-			throw new IllegalStateException("No hay Impresoras Disponibes");
+			throw new IllegalStateException("No hay Impresoras Disponibes para utilizar");
 		}
 		if (ImprimirLogs.equals("Y")) {
 			Date date = new Date();
